@@ -5,9 +5,10 @@ resource "aws_key_pair" "vpn_key" {
 }
 
 resource "aws_instance" "vpn" {
+    count                       = length(var.public_subnet_cidrs)
     ami                         = "ami-060e277c0d4cce553" #ubuntu 22.04 TLS
     instance_type               = "t2.medium"
-    subnet_id                   = aws_subnet.public.id
+    subnet_id                   = aws_subnet.public[count.index].id
     vpc_security_group_ids      = [aws_security_group.vpn.id]
     associate_public_ip_address = true
     key_name                    = aws_key_pair.vpn_key.key_name
@@ -145,9 +146,10 @@ resource "aws_instance" "vpn" {
 }
 
 resource "aws_instance" "private" {
+    count                       = length(var.private_subnet_cidrs)
     ami                         = "ami-060e277c0d4cce553"
     instance_type               = "t2.medium"
-    subnet_id                   = aws_subnet.private.id
+    subnet_id                   = aws_subnet.private[count.index].id
 
     tags = {
         Name                    = "Private Instance"
